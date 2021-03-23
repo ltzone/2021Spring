@@ -57,7 +57,7 @@
     l^{\prime}(\beta)=\sum_{i=1}^{n}\left[y_{i} X_{i}-\frac{e^{X_{i}^{\top} \beta}}{1+e^{X_{i}^{\top} \beta}} X_{i}\right]=\sum_{i=1}^{n}\left(y_{i}-p_{i}\right) X_{i}
   \end{equation}
 
-  It can be seen that the gradient is the product of $X_i$ independent of the output and the error term $y_i - p_i$, which shows that the logistic model is self consistent.
+  It can be seen that the gradient is the product of $X_i$ which is independent of the output, and the error term $y_i - p_i$. This observation shows that the logistic model is self consistent.
   \end{solution}
   \label{ex2}
 \end{exercise}
@@ -78,7 +78,7 @@
 \end{aligned}
 \end{equation}
 
-Here, $\frac{\partial}{\partial \theta} f_{\theta}(X)$ refers to the actual gradient of the data distribution, while $\mathrm{E}_{\theta}\left[\frac{\partial}{\partial \theta} f_{\theta}(X)\right]$ is the average gradient of our estimation (``dream''). We will learn based on the difference of the ideal world and the ``dream''.
+Here, $\frac{\partial}{\partial \theta} f_{\theta}(X)$ refers to the actual gradient of the data distribution, while $\mathrm{E}_{\theta}\left[\frac{\partial}{\partial \theta} f_{\theta}(X)\right]$ is the average gradient of our estimation (``dream''). We will learn based on the difference of the actual world and the ``dream''.
 
   \end{solution}
   \label{ex3}
@@ -98,11 +98,11 @@ Here, $\frac{\partial}{\partial \theta} f_{\theta}(X)$ refers to the actual grad
     X_{t+\Delta t}=X_{t}-\frac{1}{2} U^{\prime}\left(X_{t}\right) \Delta t+\sqrt{\Delta t} \varepsilon_{t}
   \end{equation}
 
-  Here $X_{t}-U^{\prime}\left(X_{t}\right) \Delta t / 2$ decreases the energy, where  and the Brownian motion $\sqrt{\Delta t} \varepsilon_{t}$ increases the entropy.The Langevin dynamics decreases the KL-divergence between the distribution of $X_{t}$ and $p_{\theta}$ monotonically.
+  Here $X_{t}-U^{\prime}\left(X_{t}\right) \Delta t / 2$ decreases the energy, and the Brownian motion $\sqrt{\Delta t} \varepsilon_{t}$ increases the entropy. The Langevin dynamics decreases the KL-divergence between the distribution of $X_{t}$ and $p_{\theta}$ monotonically.
 
   We can iterate on $X_{t+\delta t}$ using the Langevin Dynamics. The accumulated samples will approximate $p_{\theta}$
 
-  For the descriptive model, starting from a random noise, the Langevin Dynamics is given as follows.
+  For the descriptive model, starting from a random noise, the sampling process is given as follows.
 
   \begin{equation}
     X_{t+\Delta t}=X_{t}+\frac{1}{2} \frac{\partial}{\partial x} \log p_{\theta}\left(x\right) \Delta t+\sqrt{\Delta t} \varepsilon_{t}

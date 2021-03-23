@@ -1,0 +1,136 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 1   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{Please explain the concept of the entropy, the cross entropy, and the KL divergence.}
+  \begin{solution}
+  \par{~}
+  \begin{enumerate}
+    \item Entropy is defined as
+    \begin{equation}
+      \text{entropy}(p) = E_p [-\log p(X)] = \sum_{x} p(x) [-\log p(x)]
+    \end{equation}
+    Entropy can be considered as a measure of uncertainty. It can also be interpreted as the minimum average length of the encoding of a particular probability distribution, where the unit of entropy is `bit'.
+    \item Cross entropy is defined as
+    \begin{equation}
+      \text{CE}(P||Q) = \sum_{x} p(x) [-\log q(x)]
+    \end{equation}
+    It can be interpreted as the average encoding length using the distribution of $Q$ to encode $P$.
+    \item KL divergence is defined as
+    \begin{equation}
+      \begin{aligned}
+        \text{KL}(p|q) &= E_p [-\log q(X)] - E_p [-\log p(X)] = E_p[\log\frac{p(X)}{q(X)} ] \\
+        &= \sum_{x} p(x) \log\frac{p(x)}{q(x)} \\
+        &= \text{CE}(P||Q) - \text{entropy}(p)
+      \end{aligned}
+    \end{equation}
+    It measures the dissimilarity between two distributions.
+  \end{enumerate}
+  \end{solution}
+  \label{ex1}
+\end{exercise}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 2   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{Please explain how to understand the discriminative model and the logistic regression as "learning from errors."}
+  \begin{solution}
+  \par{~}
+    For discriminative model with softmax output layer, we can derive the gradient of the log likelihood as
+
+  \begin{equation}
+    \begin{aligned}
+    \frac{\partial}{\partial \theta} \log p_{\theta}(y \mid X) &=\frac{\partial}{\partial \theta} f_{\theta}(X)^{\top}(Y-p) \quad \text { Learn from errors } \\
+    &=\frac{\partial}{\partial \theta} f_{\theta}(X)^{\top}\left(Y-\mathrm{E}_{\theta}(Y \mid X)\right)
+    \end{aligned}
+  \end{equation}
+
+  Here,$\frac{\partial}{\partial \theta}f_{\theta}(X)^{\top}$ is a term independent of the output, while $(Y - p)$ is the difference of the truth and the prediction value. To optimize the loss function and decrease the gradient, we should always learn from `error'  $(Y - p)$.
+
+  For logistic regression, if we take the gradient of the 0-1 loss function, we get that
+
+  \begin{equation}
+    l^{\prime}(\beta)=\sum_{i=1}^{n}\left[y_{i} X_{i}-\frac{e^{X_{i}^{\top} \beta}}{1+e^{X_{i}^{\top} \beta}} X_{i}\right]=\sum_{i=1}^{n}\left(y_{i}-p_{i}\right) X_{i}
+  \end{equation}
+
+  It can be seen that the gradient is the product of $X_i$ independent of the output and the error term $y_i - p_i$, which shows that the logistic model is self consistent.
+  \end{solution}
+  \label{ex2}
+\end{exercise}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 3   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{Please explain how to understand the descriptive model and the logistic regression as "learning from the dream."}
+  \begin{solution}
+  \par{~}
+  For discriminative model with softmax output layer, we can derive the gradient of the log likelihood as
+\begin{equation}
+\begin{aligned}
+\frac{\partial}{\partial \theta} \log p_{\theta}(X) &=\frac{\partial}{\partial \theta} f_{\theta}(X)-\frac{\partial}{\partial \theta} \log Z(\theta) \\
+&=\frac{\partial}{\partial \theta} f_{\theta}(X)-\mathrm{E}_{\theta}\left[\frac{\partial}{\partial \theta} f_{\theta}(X)\right]
+\end{aligned}
+\end{equation}
+
+Here, $\frac{\partial}{\partial \theta} f_{\theta}(X)$ refers to the actual gradient of the data distribution, while $\mathrm{E}_{\theta}\left[\frac{\partial}{\partial \theta} f_{\theta}(X)\right]$ is the average gradient of our estimation (``dream''). We will learn based on the difference of the ideal world and the ``dream''.
+
+  \end{solution}
+  \label{ex3}
+\end{exercise}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 4   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{For descriptive model, how to compute the term of $E_\theta [\frac{\partial f(x)}{\partial \theta}]$ on Page 22? In other words, how to sample x from the distribution of $p_\theta(x)$.}
+  \begin{solution}
+  \par{~}
+  We can use Langevin Dynamics to sample $x$ given the disrtibution of $p_\theta$. Langevin Dynamics simulates the Brownian motion in the natural world. The general rule for Langevin Dynamics is presented as follows.
+  \begin{equation}
+    X_{t+\Delta t}=X_{t}-\frac{1}{2} U^{\prime}\left(X_{t}\right) \Delta t+\sqrt{\Delta t} \varepsilon_{t}
+  \end{equation}
+
+  Here $X_{t}-U^{\prime}\left(X_{t}\right) \Delta t / 2$ decreases the energy, where  and the Brownian motion $\sqrt{\Delta t} \varepsilon_{t}$ increases the entropy.The Langevin dynamics decreases the KL-divergence between the distribution of $X_{t}$ and $p_{\theta}$ monotonically.
+
+  We can iterate on $X_{t+\delta t}$ using the Langevin Dynamics. The accumulated samples will approximate $p_{\theta}$
+
+  For the descriptive model, starting from a random noise, the Langevin Dynamics is given as follows.
+
+  \begin{equation}
+    X_{t+\Delta t}=X_{t}+\frac{1}{2} \frac{\partial}{\partial x} \log p_{\theta}\left(x\right) \Delta t+\sqrt{\Delta t} \varepsilon_{t}
+  \end{equation}
+  
+
+  \end{solution}
+  \label{ex4}
+\end{exercise}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 5   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{For generative model, how to sample h from the distribution of $p_\theta(h|x)$ on Page 23?}
+  \begin{solution}
+  \par{~}
+  We can use Langevin Dynamics to sample $x$ given the disrtibution of $p_\theta(h|x)$. The general principle of Langevin Dynamics have been given in Exercise \ref{ex4}.
+
+  For the generative model, in particular , we can sample $h_{i}$ from $p_{\theta}\left(h_{i} \mid X_{i}\right)$ by Langevin dynamics
+  \begin{equation}
+    h_{t+\Delta t}=h_{t}+\frac{1}{2} \frac{\partial}{\partial h} \log p_{\theta}\left(h, X_{i}\right) \Delta t+\sqrt{\Delta t} \varepsilon_{t}
+  \end{equation}
+  where $-\log p_{\theta}\left(h, X_{i}\right)$ plays the role of energy. The Langevin dynamics decreases the KL-divergence between the distribution of $h_{t}$ and $p_{\theta}\left(h \mid X_{i}\right)$ monotonically.
+
+  \end{solution}
+  \label{ex5}
+\end{exercise}
+
+ 

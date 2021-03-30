@@ -31,7 +31,7 @@ class KMeans:
             use K-Means++ for initial points selection
         """
         self.data = data.to_numpy()
-        self.data = self.data / (np.abs(self.data).max(axis=0))  # normalize
+        # self.data = self.data / (np.abs(self.data).max(axis=0))  # normalize
         self.k = k
         self.sample_cnt = self.data.shape[0]
         self.dimension_cnt = self.data.shape[1]
@@ -135,7 +135,8 @@ class KMeans:
         radius_list = []
         for i in range(self.k):
             category_samples = self.data[np.where(self.centroid_of == i)]
-            radius = np.max(category_samples - self.centers[i])
+            category_center = category_samples.mean(0)
+            radius = max([np.linalg.norm(category_samples[j] - category_center) for j in range(category_samples.shape[0])])
             radius_list.append((radius, len(category_samples), i))
         radius_list.sort(key=lambda x: x[0])
         idx_map = {old_idx: new_idx for new_idx, (_, _, old_idx) in enumerate(radius_list)}
@@ -148,7 +149,7 @@ class KMeans:
 
 
 if __name__ == '__main__':
-    data_input = read_data("data/course1.csv")
+    data_input = read_data("../data/course1.csv")
     classifier = KMeans(data_input, 5, 200, is_kmeans_pp=True)
     classifier.cluster(verbose=True)
-    classifier.write_result("data/result.csv")
+    classifier.write_result("../data/result.csv")

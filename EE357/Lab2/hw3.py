@@ -62,7 +62,7 @@ def perfTest():
     print( "Dumping host connections" )
     dumpNodeConnections( net.hosts )
     dumpNodeConnections( net.switches )
-    input("Ready To Ping")
+    input("Are you ready To ping? (Press Any Key to Continue)")
     net.pingAll()
 
     net.stop()

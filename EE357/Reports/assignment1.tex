@@ -6,6 +6,13 @@
 \begin{exercise}[]{In this problem we consider sending real-time voice from Host $A$ to Host $B$ over a packet-switched network (VoIP). Host A converts analog voice to a digital $64 \mathrm{kbps}$ bit stream on the fly. Host A then groups the bits into 56 -byte packets. There is one link between Host A and B; its transmission rate is 2 Mbps and its propagation delay is 10 msec. As soon as Host A gathers a packet, it sends it to Host $\mathrm{B}$. As soon as Host $\mathrm{B}$ receives an entire packet, it converts the packet's bits to an analog signal. How much time elapses from the time a bit is created (from the original analog signal at Host A) until the bit is decoded (as part of the analog signal at Host B)? (10 points)}
   \begin{solution}
   \par{~}
+  Time for creating a packet $\frac{56 \times 8}{64 \times 10^3} = 7 ms$
+
+  Transmission Time $\frac{56 \times 8}{2 \time 10^6} = 224 \mu s$
+
+  Propagation Delay 10 ms.
+
+  Total time $= 7 + 0.224 + 10 = 17.224 ms$
   \end{solution}
   \label{ex1}
 \end{exercise}
@@ -27,6 +34,12 @@
     }
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item $3M/150K = 20$ users are supported.
+    \item Probability is $\frac{1}{10}$, since we know each user will be using 10\% of the transmission time.
+    \item Probability is $C_{120}^{n} \left(\frac{1}{10}\right)^n \left(\frac{9}{10}\right)^{(120-n)}$
+    \item Probability is $\sum_{n=21}^{120}C_{120}^{n} \left(\frac{1}{10}\right)^n \left(\frac{9}{10}\right)^{(120-n)} = 0.007941$
+  \end{enumerate}
   \end{solution}
   \label{ex2}
 \end{exercise}
@@ -47,6 +60,17 @@
     \end{enumerate}}
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item $d_{prop} = \frac{20,000 \times 10^3}{2.5 \times 10^8} = 0.08s$, $R\times d_{prop} = 0.16 Mb$
+    \item $d_{trans} = \frac{800 kb}{2Mbps} = 0.4s > 0.08s$. There exists a moment where the whole link has bits transmitting. The maximum number of bits is $0.16 Mb$.
+    \item The bandwidth-delay product on a link can be interpreted as the maximum number of bits that will be in the link.
+    \item $\frac{20,000 Km}{0.16 Mb} = 125m$. Longer than a football field.
+    \item The general expression for the width of a bit $l$ is
+    \begin{equation}
+      l = \frac{S}{R \times d_{prop}} = \frac{S}{\frac{R \times S}{v}} = \frac{v}{R}
+    \end{equation}
+    where $R$ is the transmission rate and $v$ is propagation speed.
+  \end{enumerate}
   \end{solution}
   \label{ex3}
 \end{exercise}
@@ -77,6 +101,14 @@
     }
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item Each hop takes $\frac{8 \times 10^6}{2\times 10^6} = 4s$. Store and forward takes $3 \times 4 = 12s$
+    \item It takes $\frac{2000}{2\times 10^6} = 1ms$ to transmit the first packet to the first switch. At $2ms$ the second packet will fully be received at the first switch.
+    \item Time for packet 1 to reach destination is $3ms$, After this, every $1ms$ a packet will arrive. Totally, it will take $3 + 3999 \times 1 = 4.002s$. It can be seen that with message segmentation, the delay is reduced to $1/3$ of the original.
+    \item Benefits: if error occurs, only the segmented packet will need re-transmission, which provides better error-tolerence.
+    
+    Drawbacks: more complicated protocols need to be designed in order to ensure the reassembling works well and all the data are transmitted. It will also require the host to be able to meet certain condiitons in order to reassemble the data.
+  \end{enumerate}
   \end{solution}
   \label{ex4}
 \end{exercise}
@@ -89,7 +121,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{exercise}[]{For a $4 \mathrm{kHz}$ voice channel with signal-to-noise ratio $30 \mathrm{~dB} .$ Is it possible to provide 56kbps data rate service? (5 points)}
   \begin{solution}
-  \par{~}
+  \par{~} By Shannon's Theorem, the upper bound of the channel capacity is
+  \begin{equation}
+     C = B \times \log_2 (1 + SNR) = 4 KHz \times \log_2 (1 + 10^{(30/10)}) = 39.868 Kbps \le 56 Kbps
+  \end{equation}
+  The channel can't provide 56kbps data rate service.
   \end{solution}
   \label{ex5}
 \end{exercise}
@@ -106,6 +142,11 @@
     i.e., more than one packets can be transmitted in sequence at the same time. So we have $D_{e n d-t o-e n d} \neq \sum d_{e n d-t o-e n d-i}(i$ is the packet No.)}
   \begin{solution}
   \par{~}
+  For Circuit Switching, a link from source to destination is required to setup. Then all bits are transmitted and propagated. $Delay = s + x/b + kd$
+
+  For Packet Switching, consider the first packet. It does not require a setup, but the store-and-forward strategy requires $(k - 1)p/b$ transmission delay. With pipelined packet-switching, the delay of other packets can be discarded. Total Delay $= x/b + (k - 1)p/b + kd$.
+
+  Packet Switching is better than Circuit Switching if s > (k-1)p/b
   \end{solution}
   \label{ex6}
 \end{exercise}

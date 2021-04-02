@@ -105,9 +105,7 @@
     \item Each hop takes $\frac{8 \times 10^6}{2\times 10^6} = 4s$. Store and forward takes $3 \times 4 = 12s$
     \item It takes $\frac{2000}{2\times 10^6} = 1ms$ to transmit the first packet to the first switch. At $2ms$ the second packet will fully be received at the first switch.
     \item Time for packet 1 to reach destination is $3ms$, After this, every $1ms$ a packet will arrive. Totally, it will take $3 + 3999 \times 1 = 4.002s$. It can be seen that with message segmentation, the delay is reduced to $1/3$ of the original.
-    \item Benefits: if error occurs, only the segmented packet will need re-transmission, which provides better error-tolerence.
-    
-    Drawbacks: more complicated protocols need to be designed in order to ensure the reassembling works well and all the data are transmitted. It will also require the host to be able to meet certain condiitons in order to reassemble the data.
+    \item Drawbacks: more complicated protocols need to be designed in order to ensure the reassembling works well and all the data are transmitted. It will also require the host to be able to meet certain condiitons in order to reassemble the data.
   \end{enumerate}
   \end{solution}
   \label{ex4}
@@ -146,7 +144,7 @@
 
   For Packet Switching, consider the first packet. It does not require a setup, but the store-and-forward strategy requires $(k - 1)p/b$ transmission delay. With pipelined packet-switching, the delay of other packets can be discarded. Total Delay $= x/b + (k - 1)p/b + kd$.
 
-  Packet Switching is better than Circuit Switching if s > (k-1)p/b
+  Packet Switching is better than Circuit Switching if $s > (k-1)p/b$
   \end{solution}
   \label{ex6}
 \end{exercise}

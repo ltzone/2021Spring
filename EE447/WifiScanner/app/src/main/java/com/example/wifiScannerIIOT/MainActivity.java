@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final EditText wifiName = findViewById(R.id.wifiName);
+        final EditText wifiLocs = findViewById(R.id.wifiLocs);
         final TextView ipText = (TextView)findViewById(R.id.ipText);//The textlist of the average of the result
         final Button changactivity = (Button)findViewById(R.id.button1);//The start button
         final Button cleanlist = (Button)findViewById(R.id.button2);//Clear the textlist
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TEST_INFO","INITIAL");
         changactivity.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v) {
-                rss_scan=new SuperWiFi(that, wifiName);
+                rss_scan=new SuperWiFi(that, wifiName, wifiLocs);
                 testID = testID + 1;
                 rss_scan.ScanRss();
                 while(rss_scan.isscan()){//Wait for the end
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 RSSList=rss_scan.getRSSlist();//Get the test result
                 final TextView ipText = (TextView)findViewById(R.id.ipText);
                 testlist=testlist+"testID:"+testID+"\n"+RSSList.toString()+"\n";
+                testlist=testlist+rss_scan.getLocRes();
                 ipText.setText(testlist);//Display the result in the textlist
             }
         });

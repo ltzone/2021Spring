@@ -34,6 +34,13 @@
                 android:text="@string/wifiname"
                 android:ems="10"
                 android:id="@+id/wifiName" android:autofillHints="SJTU"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="0,0;100,100;0,100"
+                android:ems="10"
+                android:id="@+id/wifiLocs"/>
         <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"

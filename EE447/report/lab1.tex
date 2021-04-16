@@ -1,4 +1,4 @@
-\section{Introcution}
+\section{Introduction}
 
 In this lab, we will get used to the WiFi system and accomplish the sampling and measuring of WiFi signal strength through programming in Android on smartphone. Based on the skeleton codes, we will compile them and run on a actual Android phone. We will collect the signal strength of the WiFi AP nearby and analyze them. Furthermore, we will implement the function of locating user's position.
 
@@ -36,16 +36,26 @@ We test the basic functions on Android Emulator, the results are shown in Figure
   \centering
   \begin{minipage}[t]{0.48\linewidth}
   \centering
-    \caption{Emulation Demo}
-    \label{fig:test1}
-    \includegraphics[width=0.8\columnwidth]{img/test1.png} 
+  \label{fig:test1}
+  \includegraphics[width=0.8\columnwidth]{img/test1.png} 
+  \caption{Emulation Demo}
     \end{minipage}
     \begin{minipage}[t]{0.48\linewidth}
     \centering
-      \caption{Output Result}
-      \label{fig:test2}
-      \includegraphics[width=0.8\columnwidth]{img/test2.png} 
+    \label{fig:test2}
+    \includegraphics[width=0.8\columnwidth]{img/test2.png} 
+    \caption{Output Result}
     \end{minipage}
+\end{figure}
+
+The testing data are listed in Figure \ref{fig:test}. Since they are very stable, we don't need to plot them out.
+
+\begin{figure}[hb]
+  \begin{center}
+  \includegraphics[width=8cm]{img/data.png}
+  \caption{Wifi Strength Data}
+  \label{fig:test}
+  \end{center}
 \end{figure}
 
 
@@ -80,3 +90,57 @@ We test the basic functions on Android Emulator, the results are shown in Figure
   
 
 \end{enumerate}
+
+
+\section{Indoor Location}
+
+The WiFi signal strength has a relation to the device's distance to the AP as follows.
+
+\begin{equation}
+  d=10^{\frac{|RSSI| - A}{10n}}
+\end{equation}
+
+where A and n are hyperparameters.
+
+We implement the Indoor Location algorithm in its simplest form - triangle location\footnote{\texttt{https://m.hanspub.org/journal/paper/30812}}. To be specific, we use the following equation sets to solve the user's location.
+
+\begin{equation}
+  \left\{
+  \begin{array}{rl}
+    (x-x_1)^2 + (y-y_1)^2 &= d_1^2 \\
+    \ldots \\
+    (x-x_i)^2 + (y-y_i)^2 &= d_i^2 \\
+  \end{array}  
+  \right.
+\end{equation}
+
+Note that due to measurement errors, the equation should be solved in the form of least squares. However, to simplify the implementation, we choose to measure the signal strength of three APs and obtain two linear equations to solve an approximation solution. The equations are listed as follows.
+
+\begin{equation}
+  \left\{
+    \begin{array}{rl}
+      2x(x_1-x_3) + 2y(y_1-y_3) &= d_3^2-d_1^2+y_1^2-y_3^2+x_1^2-x_3^2 \\
+      2x(x_2-x_3)+2y(y_2-y_3)&=d_3^2-d_2^2+y_2^2-y_3^2+x_2^2-x_3^2
+    \end{array}
+    \right.
+\end{equation}
+
+As for the implementation, we add an \texttt{EqnSolver.java} module to solve the above equation. We add an extra input row where users can input the reference locations of the three known APs, indicated in Figure \ref{fig:loc1}. We augment the \texttt{SuperWifi.java} module so that it can calculate the user's location when exactly three APs are measured.
+
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \label{fig:loc1}
+    \includegraphics[width=0.8\columnwidth]{img/test3.png} 
+    \caption{User interface for indoor location}
+  \end{minipage}
+  \begin{minipage}[t]{0.48\linewidth}
+  \centering
+  \label{fig:real1}
+  \includegraphics[width=0.8\columnwidth]{img/real1.jpeg} 
+  \caption{Location on Real Machine, the location result is not correct because the hyperparameters $A$ and $n$ have not been adjusted}
+  \end{minipage}
+\end{figure}
+

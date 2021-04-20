@@ -47,7 +47,7 @@ class GraphCommunity:
         assert type(G) is nx.MultiGraph
         self.G = nx.MultiGraph(G)
         self.m = G.number_of_edges()
-        self.cluster_map = {i: i for i in range(G.number_of_nodes())}
+        self.cluster_map = {i: i for i in G.nodes}
         self.rev_map = {} # a reverse table
         self.make_rev_map()
         self.degree_map = dict(G.degree)
@@ -66,13 +66,13 @@ class GraphCommunity:
         c : new cluster id
         """
         old_cluster = self.cluster_map[v]
-        self.cluster_map[v] = c
+        self.rev_map[old_cluster].remove(v)
         # move out
         self.sum_in_map[old_cluster] -= 2 * sum(len(get_altas_or_not(self.G, v, u)) for u in self.rev_map[old_cluster])
         # self.sum_in_map[old_cluster] -= sum(len(self.G[u][v]) for u in self.rev_map[old_cluster])
         self.sum_tot_map[old_cluster] -= self.G.degree(v)
-        self.rev_map[old_cluster].remove(v)
         # move in
+        self.cluster_map[v] = c
         self.rev_map[c].add(v)
         self.sum_in_map[c] += 2 * sum(len(get_altas_or_not(self.G, v, u)) for u in self.rev_map[c])
         # self.sum_in_map[c] += sum(len(self.G[u][v]) for u in self.rev_map[c])
@@ -153,10 +153,10 @@ class Louvain:
             if verbose:
                 with open(f"tmp/new1_checkpoint_{round_n}"
                           f"_{self.community.get_cluster_num()}.json", 'w') as f:
-                    json.dump({int(k): int(v) for k, v in self.community.cluster_map.items()}, f)
+                    json.dump({int(k): int(v) for k, v in self.cluster_map.items()}, f)
             round_n += 1
         with open(f"tmp/result.json", 'w') as f:
-            json.dump({int(k): int(v) for k, v in self.community.cluster_map.items()}, f)
+            json.dump({int(k): int(v) for k, v in self.cluster_map.items()}, f)
 
     def move_nodes(self, verbose):
         """
@@ -172,7 +172,8 @@ class Louvain:
             iter_cnt += 1
             moved_v = 0
             move_flag = False
-            for v in random.sample(self.Gmod.nodes, self.Gmod.number_of_nodes()):
+            # for v in random.sample(self.Gmod.nodes, self.Gmod.number_of_nodes()):
+            for v in self.Gmod.nodes:
                 best_q = float('-inf')
                 best_c = self.community.cluster_map[v]
                 appeared_community = []
@@ -190,15 +191,17 @@ class Louvain:
                     sum_tot_old = self.community.sum_tot_map[best_c]
                     for u in self.Gmod.neighbors(v):
                         if self.community.cluster_map[u] == c_n:
-                            ki_in_gain += len(G[v][u])
+                            ki_in_gain += len(self.Gmod[v][u])
                         if self.community.cluster_map[u] == best_c:
-                            ki_in_loss += len(G[v][u])
-                    ki_in_gain = ki_in_gain / 2. / self.m
-                    ki_in_loss = ki_in_loss / 2. / self.m
+                            ki_in_loss += len(self.Gmod[v][u])
+                    ki_in_gain = ki_in_gain / 2 / self.m
+                    # ki_in_loss = ki_in_loss / 2. / self.m
 
-                    delta_Q = ki_in_gain - ki_in_loss \
-                              - (sum_tot_new * ki / 2. / self.m / self.m) \
-                              + (sum_tot_old * ki / 2. / self.m / self.m)
+                    # delta_Q = ki_in_gain - ki_in_loss \
+                    #           - (sum_tot_new * ki / 2. / self.m / self.m) \
+                    #           + (sum_tot_old * ki / 2. / self.m / self.m)
+                    delta_Q = ki_in_gain \
+                              - (sum_tot_new * ki / 2. / self.m / self.m)
 
                     if best_q < delta_Q:
                         best_q = delta_Q
@@ -212,8 +215,8 @@ class Louvain:
                 print(f"Iteration #{iter_cnt}, {moved_v} vertices Moved, "
                       f"modularity: {new_modularity}, "
                       f"cluster#: {self.community.get_cluster_num()}")
-            if new_modularity < last_modularity:
-                break
+            # if new_modularity < last_modularity:
+            #     break
             last_modularity = new_modularity
 
     def aggregate(self, verbose):
@@ -245,7 +248,7 @@ class Louvain:
             idx += 1
         # make a new Graph based on the current cluster_map
         self.Gmod = nx.MultiGraph()
-        self.Gmod.add_nodes_from(range(len(self.cluster_map)))
+        self.Gmod.add_nodes_from(range(len(rev_map)))
         for (x, y, _) in self.G.edges:
             cls_idx = self.cluster_map[x]
             dst_idx = self.cluster_map[y]
@@ -255,7 +258,6 @@ class Louvain:
             print(f"{idx} clusters")
 
 
-G = read_data("../data/edges.csv")
-model = Louvain(G, 5)
-# model = RandomLouvain(G, 5)
+DG = read_data("../data/edges.csv")
+model = Louvain(DG, 5)
 model.classify(verbose=True)

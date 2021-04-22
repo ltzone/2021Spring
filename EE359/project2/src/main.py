@@ -2,7 +2,7 @@ import json
 import random
 import networkx as nx
 import pandas as pd
-from src.GraphCommunity import Louvain
+from GraphCommunity import Louvain
 
 def read_data(filename='data/edges.csv'):
     with open(filename, 'r') as f:
@@ -16,10 +16,10 @@ def read_data(filename='data/edges.csv'):
 #     cluster_map = json.load(f)
 #     cluster_map = {int(k):int(v) for k,v in cluster_map.items()}
 
-with open("../data/ground_truth.csv", 'r') as f:
+with open("data/ground_truth.csv", 'r') as f:
     table = pd.read_csv(f)
 
-DG = read_data("../data/edges.csv")
+DG = read_data("data/edges.csv")
 
 model = Louvain(DG, 5, {int(row[0]):int(row[1]) for row in table.values})
 cluster_map = model.classify(verbose=True)
@@ -73,6 +73,6 @@ while id in cluster_map.keys():
 
 out_df = pd.DataFrame(labels, columns=['category'])
 out_df.index.name = 'id'
-out_df.to_csv('../data/labels.csv')
+out_df.to_csv('data/labels.csv')
 
 print(unknown_cnt)

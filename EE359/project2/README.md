@@ -1,6 +1,8 @@
 
 ## Community Detection
 
+> 0.8都到不了，我是废物，我卷不动了 :sob::sob::sob:
+
 In this lab, we implement the Louvain Method to perform community detection
 
 ### Environment Setup

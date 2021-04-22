@@ -9,12 +9,12 @@ In this lab, we implement the Louvain Method to perform community detection
 
 Python 3.8 is used in this project. `pip install -r requirements.txt` can install the dependencies.
 
-`python src/main.py` will run the Louvain algorithm given `data/edges.csv` and `data/ground_truth.csv`. By default the `verbose` mode is on, which means you can see the training process on the console, and every 10 iterations a summary of the current training result will be printed.
+`python src/main.py` will run the Louvain algorithm given `data/edges.csv` and `data/ground_truth.csv`. By default the `verbose` mode is on, which means you can see the training process on the console, and every iteration / two phase a summary of the current training process will be printed.
 
 ### Notes
 
 - The algorithm chooses the order of nodes to optimize randomly. As a result, the results/accuracy for every execution of the program may differ a little.
-- Usually, the Louvain method will stop at around 10~20 clusters, but since ground truth number is limited, some clusters may be unable to find its 0~4 label. In our implementation, we will assign labels by voting on neighbors with known clusters
+- Usually, the Louvain method will stop at around 10\~20 clusters, but since ground truth number is limited, some clusters may be unable to find its 0\~4 label. In our implementation, we will assign labels by voting on neighbors with known clusters
 
 ### Example
 

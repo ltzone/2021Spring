@@ -14,7 +14,7 @@
   
   The implementation of server is basically an extension of Beej's \emph{cheezy multiperson chat server}, which makes use of the \texttt{select()} socket API to support multi-user connection. \texttt{select()} gives us the power to monitor several sockets at the same time. It’ll tell us which ones are ready for reading, and which are ready for writing. By maintaining a set of socket file descriptors and use \texttt{select()} to choose from them, we can write codes for listening, sending and building connections in separate branches.
 
-  We augment Beej's codes so that when a client joins or exits the room, a message will be sent to all users. Below codes use the connection close as an example. On receive buffer returns \texttt{NULL}, the server will notify every user a message stored in \texttt{id\_msg} buffer.
+  We augment Beej's codes so that when a client joins or exits the room, a message will be sent to all users. Below codes use the connection close as an example. Once receive buffer returns \texttt{NULL}, the server will notify every user with the message stored in \texttt{id\_msg} buffer.
 
 \begin{lstlisting}[language=C]
 char id_msg[INET6_ADDRSTRLEN + 256 +5];
@@ -56,7 +56,7 @@ else {
   } ...
 \end{lstlisting}
   
-In addition, our server now supports returning the message with the sender's IP. To achieve this, we need to main a mapping from socket file descriptors to the actual IP addresses. The latter is obatined when a connection is built. Everytime a new message comes, the server will look up the name of the sender from the file descriptor to the address.
+In addition, our server now supports returning the message with the sender's IP. To achieve this, we need to maintain a mapping from socket file descriptors to the actual IP addresses. IP addresses are obatined when a connection is built. Everytime a new message comes, the server will look up the name of the sender from the mapping.
 
 \begin{lstlisting}[language=C]
 #define MAX_FD_NUM 64
@@ -98,7 +98,7 @@ else {
 }  // END handle data from client
 \end{lstlisting}
 
-  As for the client, it should be able to read and write to a socket file descriptor simultaneously. We use \texttt{fork()} to address this problem. To be specific, after we obatined the file descriptor, the process will be forked into two processes, one for reading from \texttt{stdin} and writing to the socket, while the other for monitoring the socket and print to \texttt{stdout} once a message comes. We leave out the codes for building sockets and present the codes after \texttt{fork()} as follows.
+  As for the client, it should be able to read and write to a socket file descriptor simultaneously. We use \texttt{fork()} to address this problem. To be specific, after we obatin the file descriptor, the process will be forked into two processes, one for reading from \texttt{stdin} and writing to the socket, while the other for monitoring the socket and print to \texttt{stdout} once a message comes. We leave out the codes for building sockets and present the codes after \texttt{fork()} as follows.
 
 \begin{lstlisting}[language=C]
 int main(int argc, char *argv[]) {
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
   } ... 
 \end{lstlisting}
 
-  As for the sender, we should the original 1-to-1 sender in Beej's \texttt{talker.c} into 1-to-4 sender in our network. Therefore, we maintain a configure table \texttt{network\_ips} in the program. We will build four separate talker file descriptors for each IP address in the configuration table. As a result, the \texttt{talkerfd} and \texttt{p} variable in the original program should be changed into a set. We modify Beej's \texttt{talker.c} and implement the sender process as follows.
+  As for the sender, we should change the original 1-to-1 sender in Beej's \texttt{talker.c} into 1-to-4 sender structure in our network. Therefore, we maintain a configure table \texttt{network\_ips} in the program. We will build four separate talker file descriptors for each IP address in the configuration table. As a result, the \texttt{talkerfd} and \texttt{p} variable in the original program should be changed into an array of \texttt{talkerfd}s and \texttt{p}s. We modify Beej's \texttt{talker.c} and implement the sender process as follows.
 
 \begin{lstlisting}[language=C]
 const char *network_ips[] = {"10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4"};
@@ -335,7 +335,7 @@ A running example of our final program is demonstrated in Figure \ref{fig:ex2}. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{exercise}[]{Bonus question:For each client that you built in the above Question 2, it will receive the messages sent by itself from the broadcast address. Can you filter out these messages, such that each client’s terminal will not display the message sent by the client itself? Bonus will be offered, if you could realize this function. }
   
-My solution is to avoid sending messages to the host itself. The public IP address cannot be directly obtained from the socket file descriptor. Therefore, we choose to let the user pass an argument indicating the host number it has (i.e. the host it want to filter out) when running \texttt{./udpchat}. Its implementation is demonstrated as follows.
+My solution is to avoid sending messages to the host itself. Since the public IP address cannot be directly obtained from the socket file descriptor, we choose to let the user pass an argument indicating the host number it has (i.e. the host it want to filter out) when running \texttt{./udpchat}. Its implementation is demonstrated as follows.
 
 
 \begin{lstlisting}[language=C]

@@ -83,12 +83,6 @@ int main(void)
             continue;
         }
 
-
-        // /* print setup info */
-        // fprintf(stdout, "socket setup done, on port %d\n", ((struct sockaddr_in*) p->ai_addr)->sin_port);
-        // struct in_addr p_addr = ((struct sockaddr_in*) p->ai_addr)->sin_addr;
-        // char ip_str[INET_ADDRSTRLEN];
-        // fprintf(stdout, "socket setup done, on address %s\n", inet_ntop(AF_INET, &(p_addr), ip_str, INET_ADDRSTRLEN));
         break;
     }
 

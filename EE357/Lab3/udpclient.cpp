@@ -22,13 +22,13 @@ const char *network_ips[] = {
 
 #define HOST_NUM 4
 
-/*处理系统调用中产生的错误*/
+/* print message for error signals */
 void error_print(char *ptr)
 {
     perror(ptr);
     exit(EXIT_FAILURE);
 }
-/*处理通信结束时回调函数接收到的信号*/
+/* quit program on signal */
 void quit_tranmission(int sig)
 {
     printf("recv a quit signal = %d\n", sig);
@@ -135,13 +135,13 @@ int main(int argc, char *argv[])
                    buf);
             bzero(buf, strlen(buf));
         }
-        close(listenfd);          /*子进程退出，通信结束关闭套接字*/
-        kill(getppid(), SIGUSR1); /*子进程结束，也要向父进程发出一个信号告诉父进程终止接收，否则父进程一直会等待输入*/
-        exit(EXIT_SUCCESS);       /*子进程正常退出结束，向父进程返回EXIT_SUCCESS*/
+        close(listenfd);          /* before ending, close the socket file descriptor */
+        kill(getppid(), SIGUSR1); /* should signal the father process to exit */
+        exit(EXIT_SUCCESS);       /* should notify father process exit success */
     }
     else
     {                                      // talker
-        signal(SIGUSR1, quit_tranmission); /*回调函数处理通信中断*/
+        signal(SIGUSR1, quit_tranmission); /* deal with transmission corruption */
         memset(&hints, 0, sizeof hints);
         hints.ai_family = AF_INET; // set to AF_INET to use IPv4
         hints.ai_socktype = SOCK_DGRAM;
@@ -180,9 +180,9 @@ int main(int argc, char *argv[])
         }
 
         char send_buf[MAXDATASIZE] = {0};
-        /*如果服务器Ctrl+C结束通信进程，fgets获取的就是NULL，否则就进入循环正常发送数据*/
 
         while (fgets(send_buf, sizeof(send_buf), stdin) != NULL)
+        /* if the stdin is not closed */
         {
             for (int i=0;i<HOST_NUM;++i){
                 if ((numbytes = sendto(talkfd[i], send_buf, strlen(send_buf), 0,
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         }
         for (int i=0;i<HOST_NUM;++i){
             freeaddrinfo(servinfo[i]);
-            close(talkfd[i]); /*通信结束，关闭套接字*/
+            close(talkfd[i]); /* end of program, close socket file descriptor */
         }
     }
 

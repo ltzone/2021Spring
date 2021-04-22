@@ -1,0 +1,7 @@
+certifi==2020.12.5
+decorator==4.4.2
+networkx==2.5.1
+numpy==1.20.1
+pip==21.0.1
+setuptools==52.0.0.post20210125
+wheel==0.36.2

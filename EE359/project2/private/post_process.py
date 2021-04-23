@@ -1,10 +1,11 @@
 import json
 import random
 import networkx as nx
-import pandas as pd
-from GraphCommunity import Louvain
 
-def read_data(filename='data/edges.csv'):
+import pandas as pd
+
+
+def read_data(filename='../data/edges.csv'):
     with open(filename, 'r') as f:
         table = pd.read_csv(f)
     G = nx.MultiGraph()
@@ -12,22 +13,21 @@ def read_data(filename='data/edges.csv'):
         G.add_edge(row[0], row[1])
     return G
 
-# with open("result.json","r") as f:
-#     cluster_map = json.load(f)
-#     cluster_map = {int(k):int(v) for k,v in cluster_map.items()}
 
-with open("data/ground_truth.csv", 'r') as f:
+with open("../checkpoint_2_17.json","r") as f:
+    cluster_map = json.load(f)
+    cluster_map = {int(k):int(v) for k,v in cluster_map.items()}
+
+
+DG = read_data("../data/edges.csv")
+
+with open("../data/ground_truth.csv", 'r') as f:
     table = pd.read_csv(f)
 
-DG = read_data("data/edges.csv")
-
-model = Louvain(DG, 5, {int(row[0]):int(row[1]) for row in table.values})
-cluster_map = model.classify(verbose=True)
 
 # cluster_map -> truth_map
 label_map = dict() # count occurences
 
-# assign cluster to a 0~5 category
 for row in table.values:
     cluster = cluster_map[row[0]]
     truth = row[1]
@@ -38,7 +38,6 @@ for row in table.values:
     label_map[cluster][truth] += 1
 print(label_map)
 
-# make a dict mapping nodes to its (determinately) predicted clusters
 new_label_map = dict()
 for k,v_map in label_map.items():
     new_label_map[k] = 0
@@ -47,16 +46,13 @@ for k,v_map in label_map.items():
             new_label_map[k] = res
 print(new_label_map)
 
-# assign predicted value to labels
 id = 0
 unknown_cnt = 0
 labels = []
 while id in cluster_map.keys():
     try:
-        # if id has determinate cluster, assign directly
         labels.append(new_label_map[cluster_map[id]])
     except KeyError: # no cluster is found
-        # otherwise, vote by degree on its neighbors' known clusters
         votes = {}
         for u in DG.neighbors(id):
             u_com = cluster_map[u]
@@ -76,6 +72,6 @@ while id in cluster_map.keys():
 
 out_df = pd.DataFrame(labels, columns=['category'])
 out_df.index.name = 'id'
-out_df.to_csv('data/labels.csv')
+out_df.to_csv('labels.csv')
 
 print(unknown_cnt)

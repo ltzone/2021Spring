@@ -2,9 +2,11 @@ import operator
 import random
 import json
 import time
+from queue import Queue
 
 import networkx as nx
 import pandas as pd
+import copy
 
 
 def read_data(filename='data/edges.csv'):
@@ -41,18 +43,28 @@ class GraphCommunity:
 
         Enables pre-computation for to quickly look-up degrees used in Louvain Algorithm
     """
-    def __init__(self, G, ground_truth):
+
+    def __init__(self, G, ground_truth, rej_prob=0):
         """
         Parameters
         ----------
         G : nx.MultiGraph
-        The current Graph to be assigned community
+            The current Graph to be assigned community
+
+        ground_truth: dict (int -> int)
+            ground_truth[i] = c means the actual cluster of i is c
+            used to identify the contradiction relation when moving nodes
+
+        rej_prob: double
+            ranging from 0 ~ 1, reject the local move with probability
+            0 means the original Louvain algorithm
+            1 means reject any local changes that may lead to a contradiction to the ground truth
         """
         assert type(G) is nx.MultiGraph
         self.G = nx.MultiGraph(G)
         self.m = G.number_of_edges()
         self.cluster_map = {i: i for i in G.nodes}
-        self.rev_map = {} # a reverse table
+        self.rev_map = {}  # a reverse table
         self.make_rev_map()
         self.degree_map = dict(G.degree)
         self.sum_in_map = {}  # the sum of links inside a cluster
@@ -61,8 +73,12 @@ class GraphCommunity:
         self.make_sum_tot_map()
         self.contradiction_map = {}
         self.make_contradiction_map(ground_truth)
+        self.rej_prob = rej_prob
 
     def make_contradiction_map(self, ground_truth):
+        """
+        Initialize contradiction map from ground truth
+        """
         self.contradiction_map = {}
         ground_truth_rev = {}
         for v, label in ground_truth.items():
@@ -83,12 +99,18 @@ class GraphCommunity:
         ----------
         v : vertex
         c : new cluster id
+
+        Returns
+        -------
+        Boolean: whether the move actually takes place, or
+                 is rejected due to contradiction to ground truth
         """
         # NOTE: it doesn't help if we stick to the ground truth
-        # if v in self.contradiction_map.keys() and len(self.contradiction_map[v].intersection(self.rev_map[c])) != 0:
+        if v in self.contradiction_map.keys() and len(self.contradiction_map[v].intersection(self.rev_map[c])) != 0:
             # causing contradiction, reject to move
-            # print("reject")
-            # return False
+            if random.random() < self.rej_prob:
+                print("reject")
+                return False
         old_cluster = self.cluster_map[v]
         # move out
         self.sum_in_map[old_cluster] -= 2 * sum(len(get_altas_or_not(self.G, v, u)) for u in self.rev_map[old_cluster])
@@ -131,37 +153,63 @@ class GraphCommunity:
             self.rev_map[v].add(k)
 
     def get_modularity(self):
-        '''
-        Compute the modularity of current community, the derived form
-        '''
-        Q = 0
-        for c in self.rev_map.keys():
-            Q += self.sum_in_map[c] / self.m / 2 - (self.sum_tot_map[c] / self.m / 2) ** 2
-        return Q
-
-    def get_modularity_old(self):
         """
-        Returns
-        -------
-        Modularity for current community, deprecated
+        Compute the modularity of current community, the derived form
         """
         modularity = 0
-        old_x, old_y = -1, -1
-        for (x, y, z) in self.G.edges:
-            if (x, y) == (old_x, old_y):
-                continue
-            old_x, old_y = x, y
-            if self.cluster_map[x] == self.cluster_map[y]:
-                modularity += len(get_altas_or_not(self.G, x, y)) - \
-                              (self.degree_map[x] * self.degree_map[y]) / 2 / self.m
-        return modularity / 2 / self.m
+        for c in self.rev_map.keys():
+            modularity += self.sum_in_map[c] / self.m / 2 - (self.sum_tot_map[c] / self.m / 2) ** 2
+        return modularity
 
     def get_cluster_num(self):
-        return sum(1 if len(v) != 0 else 0 for k,v in self.rev_map.items())
+        return sum(1 if len(v) != 0 else 0 for k, v in self.rev_map.items())
+
+    def get_modularity_gain(self, v, c):
+        """
+
+        Parameters
+        ----------
+        v : node to be moved
+        c : destination cluster
+
+        Returns
+        -------
+        the actual gain of global modularity of moving one node to another cluster
+
+        """
+        old_c = self.cluster_map[v]
+        c_n = c
+        ki = self.degree_map[v]
+
+        ki_i2C = 0  # the sum of the weights of links from node i to nodes in C
+        ki_D2i = 0  # the sum of the weights of links from nodes in D to node i
+        sum_tot_new = self.sum_tot_map[c_n]
+        sum_tot_old = self.sum_tot_map[old_c]
+        for u in self.G.neighbors(v):
+            if self.cluster_map[u] == c_n:
+                ki_i2C += 2 * len(self.G[v][u]) if v != u else 0
+                # IMPORTANT TO SKIP self-edge
+            if self.cluster_map[u] == old_c:
+                ki_D2i += 2 * len(self.G[u][v]) if v != u else 0
+        delta_Q = ki_i2C / 2 / self.m - ki_D2i / 2 / self.m - \
+                  (sum_tot_new * ki / 2. / self.m / self.m) + \
+                  (sum_tot_old * ki / 2. / self.m / self.m) - \
+                  (self.degree_map[v] / 2 / self.m) ** 2 / 2
+        return delta_Q
 
 
 class Louvain:
     def __init__(self, graph, cluster_num, ground_truth):
+        """
+
+        Parameters
+        ----------
+        graph : nx.MultiGraph, the graph to be clustered
+        cluster_num : the goal of clusters where the algorithm should stop
+            (Note, the cluster number is not surely to be obtained, the
+                algorithm may stop at any cluster larger than this number
+        ground_truth : a mapping from node number to its ground truth label
+        """
         assert (type(graph) is nx.MultiGraph)
         self.G = graph
         self.Gmod = self.G.copy()
@@ -180,7 +228,8 @@ class Louvain:
         """
         round_n = 0
         last_cluster_num = self.community.get_cluster_num()
-        while self.community.get_cluster_num() > self.cluster_num:
+        last_cluster_map = copy.copy(self.cluster_map)
+        while True:
             print(f"Round {round_n}, {self.Gmod.number_of_edges(), self.Gmod.number_of_nodes()}")
             self.move_nodes(verbose)
             self.aggregate(verbose)
@@ -189,9 +238,12 @@ class Louvain:
                           f"_{self.community.get_cluster_num()}.json", 'w') as f:
                     json.dump({int(k): int(v) for k, v in self.cluster_map.items()}, f)
             round_n += 1
-            if self.community.get_cluster_num() == last_cluster_num:
+            if (self.community.get_cluster_num() == last_cluster_num) or \
+                    (self.community.get_cluster_num() <= self.cluster_num):
+                self.cluster_map = last_cluster_map
                 break
             last_cluster_num = self.community.get_cluster_num()
+            last_cluster_map = copy.copy(self.cluster_map)
         with open(f"result.json", 'w') as f:
             json.dump({int(k): int(v) for k, v in self.cluster_map.items()}, f)
         return self.cluster_map
@@ -205,14 +257,16 @@ class Louvain:
             print(f"New Phase, modularity {self.community.get_modularity()}")
         move_flag = True
         iter_cnt = 0
-        last_modularity = -1
+        last_modularity = self.community.get_modularity()
         while move_flag:
+            # while there is still vertice to move or gain in modularity
             iter_cnt += 1
             moved_v = 0
             move_flag = False
-            for v in random.sample(self.Gmod.nodes, self.Gmod.number_of_nodes()): # Random is more efficient
-            # for v in self.Gmod.nodes:
-                best_q = 0 # should be initialized as zero
+            for v in random.sample(self.Gmod.nodes, self.Gmod.number_of_nodes()):
+                # optimize every vertex on the graph
+                # Note: Random order visiting is more efficient than "for v in self.Gmod.nodes:"
+                best_q = 0
                 old_c = self.community.cluster_map[v]
                 best_c = self.community.cluster_map[v]
                 appeared_community = []
@@ -221,18 +275,7 @@ class Louvain:
                     if c_n in appeared_community:
                         continue
                     appeared_community.append(c_n)
-                    ki = self.community.degree_map[v]
-
-                    ki_in_gain = 0  # the sum of the weights of links from node i to nodes in C
-                    sum_tot_new = self.community.sum_tot_map[c_n]
-                    for u in self.Gmod.neighbors(v):
-                        if self.community.cluster_map[u] == c_n:
-                            ki_in_gain += len(self.Gmod[v][u]) if v!= u else 0
-                            # IMPORTANT TO SKIP self-edge
-                    ki_in_gain = 2 * ki_in_gain / 2 / self.m
-                    delta_Q = ki_in_gain \
-                              - (sum_tot_new * ki / 2. / self.m / self.m)
-
+                    delta_Q = self.community.get_modularity_gain(v, c_n)
                     if best_q < delta_Q:
                         best_q = delta_Q
                         best_c = c_n
@@ -253,9 +296,7 @@ class Louvain:
     def aggregate(self, verbose):
         """
         Based on the [community] results, re-map the nodes into clusters
-
         remove redundant clusters (empty set) and re-index the cluster numbers
-
         create a new aggregated MultiGraph [Gmod] for the next phase
         """
         # remap the clusters for all original nodes
@@ -292,12 +333,10 @@ class Louvain:
         if verbose:
             print(f"{idx} clusters")
 
-
-if __name__ == "__init__":
+if __name__ == "__main__":
     DG = read_data("../data/edges.csv")
     with open("../data/ground_truth.csv", 'r') as f:
         table = pd.read_csv(f)
 
-    model = Louvain(DG, 5, {int(row[0]):int(row[1]) for row in table.values})
+    model = Louvain(DG, 5, {int(row[0]): int(row[1]) for row in table.values})
     model.classify(verbose=True)
-

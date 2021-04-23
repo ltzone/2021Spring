@@ -1,10 +1,10 @@
 import json
 import pandas as pd
 
-with open("../data/labels 2.csv", 'r') as f:
+with open("../private/labels80.csv", 'r') as f:
     ref_table = pd.read_csv(f)
 
-with open("../data/labels_submit3.csv", 'r') as f:
+with open("../private/labels.csv", 'r') as f:
     my_table = pd.read_csv(f)
 
 cnt = 0

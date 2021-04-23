@@ -1,5 +1,6 @@
 
 ## Community Detection
+> 第114514次跑的结果上0.8了 家人们我躺平了 :innocent::innocent::innocent:
 
 > 0.8都到不了，我是废物，我卷不动了 :sob::sob::sob:
 
@@ -15,10 +16,12 @@ Python 3.8 is used in this project. `pip install -r requirements.txt` can instal
 
 - The algorithm chooses the order of nodes to optimize randomly. As a result, the results/accuracy for every execution of the program may differ a little.
 - Usually, the Louvain method will stop at around 10\~20 clusters, but since ground truth number is limited, some clusters may be unable to find its 0\~4 label. In our implementation, we will assign labels by voting on neighbors with known clusters
+- We also try to introduce ground truth into the training. To be specific, you can assign a `rej_prob` into the model. When a local move may violate the ground truth (moving two nodes with different labels to the same cluster), the model will reject it with `rej_prob`. However, our experiements show that this method will not lead to a visible increase in accuracy.
+
 
 ### Example
 
-Here is an observation of running.
+Here is an example output of running `python src/main.py`.
 
 ```
 Round 0, (220377, 31136)

@@ -17,7 +17,7 @@ We define the following expected gains:
 \end{enumerate}
 
 
-Our goal is to find a $k$ where $E_{1,0} > 0$, i.e. starting from the initial state, the expected gain of attacks is larger than the costs.
+Our goal is to find the first $k$ where $E_{1,0} < 0$, i.e. starting from the initial state, the expected gain of attacks is less than the costs.
 
 We write a program to calculate the whole $E_{m,n}$ table. We find that $k=29$ gives the first negative result in $E_{1,0}$
 
@@ -39,6 +39,6 @@ for i in range(K):
     print(29-i, E_table[1+i][i])
 \end{lstlisting}
 
-The expected gain for every $K= 29$ is $-0.3282 W$
+The expected gain for every $K= 29$ is $-0.3282 \times 10^4$
 
 \end{document}

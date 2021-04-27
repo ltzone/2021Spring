@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%    EXERCISE 1   %%%%%%%%%%%%
+%%%%%%%%%%%%%                 %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{exercise}[]{Please prove that the mean value of beta given X and Y $(\Pr[\beta | Y, X])$ on Page 14 equals to the solution to the ridge regression. This is taught in the class, not in the note.}
+  \begin{solution}
+  \par{~}
+
+The posterior distribution for $\beta$ for the linear version of bayesian regression is
+
+$$
+\operatorname{Pr}[\beta \mid Y, X]=N\left(\tau^{2} X^{T}\left(\tau^{2} X X^{T}+\sigma^{2} I_{n}\right)^{-1} Y, \tau^{2} I_{p}-\tau^{2} X^{T}\left(\tau^{2} X X^{T}+\sigma^{2} I_{n}\right)^{-1} \tau^{2} X\right)
+$$
+
+We can consider the mean value to be the optimal solution that the ridge regression model should give. We first set the $\lambda$ of the ridge regression to be $\frac{\sigma^2}{\tau^2}$, we show that the mean value is equal to the solution of ridge regression.
+
+\begin{equation}
+    \begin{aligned}
+    \tau^{2} X^{T}\left(\tau^{2} X X^{T}+\sigma^{2} I_{n}\right)^{-1} Y &= X^T(XX^T+\lambda I_n)^{-1} Y\\
+    &=(X^TX+\lambda I_n)^{-1}(X^TX+\lambda I_n) X^T(XX^T+\lambda I_n)^{-1} Y \\
+    &=(X^TX+\lambda I_n)^{-1}X^T(X^TX+\lambda I_n) (XX^T+\lambda I_n)^{-1} Y \\
+    &=(X^TX+\lambda I_n)^{-1}X^T Y 
+    \end{aligned}
+\end{equation}
+
+  \end{solution}
+  \label{ex1}
+\end{exercise}

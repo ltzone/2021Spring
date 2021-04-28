@@ -20,8 +20,8 @@ with open("data/ground_truth.csv", 'r') as f:
     table = pd.read_csv(f)
 
 DG = read_data("data/edges.csv")
-
-model = Louvain(DG, 5, {int(row[0]):int(row[1]) for row in table.values})
+# use larger goal cluster numbers to get better robustness
+model = Louvain(DG, 10, {int(row[0]):int(row[1]) for row in table.values}, rej_prob=0.2)
 cluster_map = model.classify(verbose=True)
 
 # cluster_map -> truth_map

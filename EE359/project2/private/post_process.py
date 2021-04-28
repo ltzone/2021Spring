@@ -14,7 +14,7 @@ def read_data(filename='../data/edges.csv'):
     return G
 
 
-with open("../checkpoint_2_17.json","r") as f:
+with open("../tmp/checkpoint_2_13.json","r") as f:
     cluster_map = json.load(f)
     cluster_map = {int(k):int(v) for k,v in cluster_map.items()}
 

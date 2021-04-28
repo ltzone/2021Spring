@@ -199,7 +199,7 @@ class GraphCommunity:
 
 
 class Louvain:
-    def __init__(self, graph, cluster_num, ground_truth):
+    def __init__(self, graph, cluster_num, ground_truth, rej_prob=0):
         """
 
         Parameters
@@ -216,8 +216,9 @@ class Louvain:
         self.m = graph.number_of_edges()
         self.cluster_num = cluster_num
         self.cluster_map = {i: i for i in self.G.nodes}
-        self.community = GraphCommunity(graph, ground_truth)
+        self.community = GraphCommunity(graph, ground_truth, rej_prob)
         self.ground_truth = ground_truth
+        self.rej_prob = rej_prob
 
     def classify(self, verbose=False):
         """
@@ -329,7 +330,7 @@ class Louvain:
         new_ground_truth = dict()
         for v, label in self.ground_truth.items():
             new_ground_truth[self.cluster_map[v]] = label
-        self.community = GraphCommunity(self.Gmod, new_ground_truth)
+        self.community = GraphCommunity(self.Gmod, new_ground_truth, self.rej_prob)
         if verbose:
             print(f"{idx} clusters")
 

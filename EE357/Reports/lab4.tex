@@ -58,7 +58,10 @@
 
   Then we test the bandwidth between 10.0.0.1/10.0.0.2/10.0.0.111 and 10.0.0.3 using xterm in the MiniNet. However, the iperf fails in Figure \ref{fig:ex2-2-1}, \ref{fig:ex2-2-2}. This is because VXLAN adds 50 to 54 bytes of additional header information to the original Ethernet frame. We must increase the MTU of the underlying network. 
   
-  In this case, configure the MTU of the physical interfaces that participate in the VXLAN network to be 2000 greater than the typical MTU of 1500, indicated in Figure \ref{fig:ex2-2-6}. After the configuration, the iperf command succeeds and the bandwidths between 10.0.0.3 and 10.0.0.1/10.0.0.2/10.0.0.111 are 918 Mbits/sec, 839 Mbits/sec, and 930 Mbits/sec respectively, in Figure \ref{fig:ex2-2-4}, \ref{fig:ex2-2-5}.
+  In this case, configure the MTU of the physical interfaces that participate in the VXLAN network to be 2000 greater than the typical MTU of 1500, indicated in Figure \ref{fig:ex2-2-6}. After the configuration, the iperf command succeeds and the bandwidths between 10.0.0.3 and 10.0.0.1/10.0.0.2/10.0.0.111 are 9.49 Mbits/sec, 9.49 Mbits/sec, and 9.52 Mbits/sec respectively, in Figure \ref{fig:ex2-2-4}. 
+  
+  The bandwidth is smaller than we have configured in the MiniNet (10 Mbps) due to the overhead of data headers. The bandwidth of the switch s1 is slightly greater than host h1 and h2 because h1 and h2 requires an extra hop which may take up more bandwidth.
+
 
   \begin{figure}[ht]
     \begin{center}
@@ -104,20 +107,13 @@
 
   \begin{figure}[ht]
     \begin{center}
-    \includegraphics[width=16cm]{img/lab4/ex2-2-4.png}
-    \caption{iperf measurement for 10.0.0.1, 10.0.0.2, 10.0.0.111 as clients}
+    \includegraphics[width=6cm]{img/lab4/ex-2-2-4-1.png}
+    \includegraphics[width=6cm]{img/lab4/ex-2-2-4-2.png}
+    \includegraphics[width=6cm]{img/lab4/ex-2-2-4-3.png}
+    \caption{iperf measurement for 10.0.0.1, 10.0.0.2, 10.0.0.111 as clients and 10.0.0.3 as server}
     \label{fig:ex2-2-4}
     \end{center}
   \end{figure}
-
-  \begin{figure}[ht]
-    \begin{center}
-    \includegraphics[width=6cm]{img/lab4/ex2-2-5.png}
-    \caption{iperf measurement for 10.0.0.3 as server}
-    \label{fig:ex2-2-5}
-    \end{center}
-  \end{figure}
-
   \end{solution}
   \label{ex2}
 \end{exercise}
@@ -135,7 +131,9 @@
 
   The latency between 192.168.56.101 and 192.168.56.102 is 0.836ms on average, shown in Figure \ref{fig:ex3-1}.
 
-  The latency between 10.0.0.3 and 10.0.0.1/10.0.0.2/10.0.0.111 is 0.905ms, 2.054ms, and 1.941ms on average respectively, shown in Figure \ref{fig:ex3-2}. Note that receiving the first ping reply usually takes a much longer time than others.
+  The latency between 10.0.0.3 and 10.0.0.1/10.0.0.2/10.0.0.111 is 22.750, 22.686ms, and 12.009ms on average respectively, shown in Figure \ref{fig:ex3-2}. 
+  
+  The latency between VXLAN network is larger than the true latency between two virtual machines as we configured in MiniNet. Receiving the first ping reply usually takes a much longer time than others, because for later connection, the target address has been cached. The time for h1 and h2 takes twice as much as that for s1, because they requires an extra hop to reach s2.
 
     \begin{figure}[ht]
     \begin{center}
@@ -148,19 +146,19 @@
 
     \begin{figure}[ht]
         \begin{center}
-        \begin{minipage}[t]{0.3\linewidth}
+        \begin{minipage}[t]{0.45\linewidth}
             \centering
-            \includegraphics[width=0.9\linewidth]{img/lab4/ex3-2.png}
+            \includegraphics[width=\linewidth]{img/lab4/ex3-2.png}
         \end{minipage}
-        \begin{minipage}[t]{0.3\linewidth}
+        \begin{minipage}[t]{0.45\linewidth}
             \centering
-            \includegraphics[width=0.9\linewidth]{img/lab4/ex3-3.png}
+            \includegraphics[width=\linewidth]{img/lab4/ex3-3.png}
         \end{minipage}
-        \begin{minipage}[t]{0.3\linewidth}
+        \begin{minipage}[t]{0.45\linewidth}
             \centering
-            \includegraphics[width=0.9\linewidth]{img/lab4/ex3-4.png}
+            \includegraphics[width=\linewidth]{img/lab4/ex3-4.png}
         \end{minipage}
-        \caption{Ping latency from 10.0.0.3 to 10.0.0.1/10.0.0.2/10.0.0.111
+        \caption{Ping latency from 10.0.0.1/10.0.0.2/10.0.0.111 to 10.0.0.3
         \label{fig:ex3-2}}
         \end{center}
     \end{figure}

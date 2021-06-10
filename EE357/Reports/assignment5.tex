@@ -8,8 +8,16 @@
     the parity bits be for the case of a two-dimensional parity scheme? Your answer should be
     such that a minimumlength checksum field is used. (15 points)}
   \begin{solution}
-  \par{~}
+    The minimum length checksum is obtained when the row number and the column number are the same. The parity bits value are listed as follows (in the last column and last row).
   \end{solution}
+  \begin{verbatim}
+    1110 1
+    0110 0
+    1001 0
+    1101 1
+
+    1100 0
+  \end{verbatim}
   \label{ex1}
 \end{exercise}
 
@@ -24,6 +32,7 @@
     1010101010. What is the value of R? (10 points)}
   \begin{solution}
   \par{~}
+  0100, because $1010101010\ 0000 = 10011 \times 1011011100 + 100$
   \end{solution}
   \label{ex2}
 \end{exercise}
@@ -42,10 +51,16 @@
     \end{enumerate} }
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item 0000, because $1001010101 \ 0000= 10011 \times 1000110000$
+    \item 1111, because $0101101010 \ 0000= 10011 \times 0101010101 + 1111$
+    \item 1001, because $1010100000 \ 0000= 10011 \times 1011010111 + 1001$
+  \end{enumerate}
   \end{solution}
   \label{ex3}
 \end{exercise}
 
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%                 %%%%%%%%%%%%
@@ -66,7 +81,7 @@
     \end{enumerate}
     \begin{figure}[hb]
       \begin{center}
-      \includegraphics[width=12cm]{img/ass5/ex4}
+      \includegraphics[width=8cm]{img/ass5/ex4}
       \caption{Three subnets, interconnected by routers}
       \label{fig:ex4}
       \end{center}
@@ -74,6 +89,22 @@
     }
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item See figure \ref{fig:ex4-ans}
+    
+    \begin{figure}[hb]
+      \begin{center}
+      \includegraphics[width=8cm]{img/ass5/ex4-ans}
+      \caption{Answer to Exercise \ref{ex4}}
+      \label{fig:ex4-ans}
+      \end{center}
+    \end{figure}
+
+    \item The MAC address should be assigned by the Internet administrating organizations. Each adapter in the Figure will have a unique MAC address like \texttt{90:9c:4a:c6:da:b7}.
+    \item First, the sender E creates IP datagram with IP source E, destination B. Then E creates link-layer frame with the right router's MAC address as destination address, frame contains E-to-B IP datagram. Then, the frame sent from E to the right router frame is received, datagram is removed and passed up to IP. The right router will forward the datagram with IP source E, destination B and create link-layer frame with left router's MAC address as destination address, frame contains E-to-B IP datagram. Finally, the host B will receive the frame from the left router, passing it up to IP. The datagram is obtained.
+    \item E will first use the ARP protocol to broadcast an ARP query packet, containing B's IP address and set destination MAC address as FF-FF-FF-FF-FF-FF. Then all nodes on LAN will receive ARP query. As for the router, since it knows the IP address, it will reply to E with its (router's) MAC address, so that the steps described in part 3 can resume.
+  \end{enumerate}
+
   \end{solution}
   \label{ex4}
 \end{exercise}
@@ -94,7 +125,7 @@
     times. Thus, the answer is no, if B’s signal reaches A before bit time t=512+64 bits. In the
     worst case, when does B’s signal reach A? (20 points)}
   \begin{solution}
-  \par{~}
+  \par{~} A can finish transmitting before it detects that B has transmitted. Assume A begins transmitting a frame at $0$. It will finish its transmission at $512+64$ bit times. B will receive the beginning of the frame at $325$ bit times. So before $325$, B is able to send out its frames. If B chooses to send its frame at time $251 ~ 324$, then the frame will arrive at A at a time later than $512 + 64$ bit times (after A has transmittted). Therefore, it is possible that A finish transmitting before it detects that B has transmitted.
   \end{solution}
   \label{ex5}
 \end{exercise}
@@ -114,6 +145,12 @@
     which the transmitted frame will be forwarded, and briefly justify your answers. (20 points)}
   \begin{solution}
   \par{~}
+  \begin{enumerate}
+    \item When B sends a frame to E, the frame in transmission will be flooded to all links except the arriving interface in the network. After transmission, the switch will record the entry of B interface.
+    \item When E sends a frame to B, the frame in transmission will be sent only to B interface since the entry has been learnt in the previous step. After transmission, the switch will have the entries of B and E interfaces.
+    \item When A sends a frame to B, the frame in transmission will be sent only to B interface since the entry has been learnt in the first step. After transmission, the switch will have the entries of A, B and E interfaces.
+    \item When B sends a frame to A, the frame in transmission will be sent only to A interface since the entry has been learnt in the previous step. After transmission, the switch will have the entries of A, B and E interfaces.
+  \end{enumerate}
   \end{solution}
   \label{ex6}
 \end{exercise}

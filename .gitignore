@@ -279,3 +279,10 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+EE447/table/.idea/.gitignore
+EE447/table/.idea/misc.xml
+EE447/table/.idea/modules.xml
+EE447/table/.idea/table.iml
+EE447/table/.idea/vcs.xml
+EE447/table/.idea/inspectionProfiles/profiles_settings.xml
+EE447/table/.idea/inspectionProfiles/Project_Default.xml

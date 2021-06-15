@@ -2,23 +2,27 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.kernel_ridge import KernelRidge
 from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import Ridge
 from utils import *
+import warnings
 
 if __name__ == '__main__':
     accs = []
     for number in range(1, 11):
         train_X, train_y, test_X, test_y = load_data(number, feature=True, balance=True)
 
-        lgr = LogisticRegression()
+        # warnings.filterwarnings("ignore")
+        # lgr = LogisticRegression(penalty='none')
         # lgr = LinearDiscriminantAnalysis()
         # lgr = KernelRidge(kernel="rbf")
-        # lgr = RidgeClassifier()
+        # lgr = KernelRidge()
+        # lgr = RidgeClassifier(solver='svd')
+        lgr = Ridge(alpha=1)
 
         lgr.fit(train_X, train_y)
 
         predict_y = lgr.predict(test_X)
-        predict_y[predict_y<0.5] = 0
-        predict_y[predict_y>=0.5] = 1
+        print(lgr.coef_)
         acc = binary_acc(predict_y, test_y)
 
         accs.append(acc)

@@ -43,7 +43,12 @@ def load_data(class_num=None, feature=False, balance=False, dir="data"):
 
 
 def binary_acc(predict, truth):
-    return sum(predict == truth)/predict.size
+    predict = np.asarray(predict).flatten()
+    predict_label = np.zeros(predict.size)
+    # predict[predict<0.5] = 0
+    predict_label[predict>=0.5] = 1
+    predict_label = predict_label.astype(int)
+    return sum(predict_label == truth)/predict.size
 
 if __name__ == '__main__':
     train_X, train_y, test_X, test_y = load_data()
